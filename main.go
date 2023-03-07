@@ -10,7 +10,9 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 )
 
 // The OpenAI API Key
@@ -18,6 +20,17 @@ var apiKey string
 
 // Recent AI response content
 var output string
+
+func init() {
+	go func() {
+		signals := make(chan os.Signal, 2)
+		signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+		select {
+		case <-signals:
+			exitHook()
+		}
+	}()
+}
 
 func main() {
 	flag.StringVar(&apiKey, "api-key", "", "OpenAI API key")
@@ -80,6 +93,15 @@ func main() {
 		fmt.Println()
 		stream.Close()
 	}
+
+	exitHook()
+}
+
+// exitHook is to say goodbye to user and exit the program
+func exitHook() {
+	fmt.Println()
+	fmt.Println("Bye")
+	os.Exit(0)
 }
 
 // handleResponse handles the stream response
