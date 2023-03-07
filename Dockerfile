@@ -1,8 +1,9 @@
-FROM golang
+FROM golang AS builder
 WORKDIR /shellgpt
 COPY . .
 RUN make build
 
-FROM alpine
-COPY --from=0 /shellgpt/bin/shellgpt ./shellgpt
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /shellgpt/bin/shellgpt ./shellgpt
 ENTRYPOINT ["./shellgpt"]
