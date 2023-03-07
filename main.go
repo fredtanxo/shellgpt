@@ -36,7 +36,7 @@ func main() {
 		// Read user input
 		input, err := getUserInput(scanner)
 		if err != nil {
-			continue
+			break
 		}
 
 		input = strings.TrimSpace(input)
@@ -122,5 +122,5 @@ func getUserInput(scanner *bufio.Scanner) (string, error) {
 		}
 		return s, nil
 	}
-	return "", scanner.Err()
+	return "", io.EOF
 }
