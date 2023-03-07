@@ -36,6 +36,8 @@ func main() {
 	flag.StringVar(&apiKey, "api-key", "", "OpenAI API key")
 	flag.Parse()
 
+	printBanner()
+
 	if apiKey == "" {
 		log.Fatalln("No API key provided")
 	}
@@ -95,6 +97,19 @@ func main() {
 	}
 
 	exitHook()
+}
+
+func printBanner() {
+	fmt.Print(`
+  ____  _          _ _  ____ ____ _____ 
+ / ___|| |__   ___| | |/ ___|  _ \_   _|
+ \___ \| '_ \ / _ \ | | |  _| |_) || |
+  ___) | | | |  __/ | | |_| |  __/ | |
+ |____/|_| |_|\___|_|_|\____|_|    |_|
+
+Type anything to start a conversation.
+
+`)
 }
 
 // exitHook is to say goodbye to user and exit the program
