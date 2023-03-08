@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: shellgpt-${{ github.sha }}
-          path: bin
+          path: bin/*
 
   release:
     name: Publish binaries to GitHub Release
