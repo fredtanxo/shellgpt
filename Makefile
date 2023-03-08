@@ -2,6 +2,18 @@ NAME=shellgpt
 BINDIR=bin
 GOBUILD=CGO_ENABLED=0 go build
 
+build:
+	$(GOBUILD) -o $(BINDIR)/$(NAME)
+
+lint:
+	golangci-lint run ./...
+
+test:
+	go test
+
+clean:
+	rm $(BINDIR)/*
+
 all: linux-amd64 darwin-amd64 darwin-arm64 windows-amd64
 
 linux-amd64:
@@ -16,13 +28,4 @@ darwin-arm64:
 windows-amd64:
 	GOARCH=amd64 GOOS=windows $(GOBUILD) -o $(BINDIR)/$(NAME)-$@.exe
 
-build:
-	$(GOBUILD) -o $(BINDIR)/$(NAME)
-
-lint:
-	golangci-lint run ./...
-
-clean:
-	rm $(BINDIR)/*
-
-.PHONY: lint clean
+.PHONY: lint test clean

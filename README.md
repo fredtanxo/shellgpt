@@ -19,7 +19,7 @@ docker run -it --rm fredtan/shellgpt -api-key="$MY_OPENAI_API_KEY"
 ```shell
 git clone https://github.com/fredtanxo/shellgpt.git
 cd shellgpt
-make build
+make
 ```
 
 ## License

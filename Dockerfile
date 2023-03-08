@@ -1,7 +1,7 @@
 FROM golang AS builder
 WORKDIR /shellgpt
 COPY . .
-RUN make build
+RUN make
 
 FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
