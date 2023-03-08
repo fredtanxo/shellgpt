@@ -35,7 +35,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: shellgpt-${{ github.sha }}
+          name: shellgpt-${{ matrix.os }}
           path: bin/*
 
   release:
@@ -50,13 +50,12 @@ jobs:
       - name: Download binaries
         uses: actions/download-artifact@v3
         with:
-          name: shellgpt-${{ github.sha }}
           path: bin
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: bin/*
+          files: bin/shellgpt-*/*
 
   docker:
     name: Publish docker image
