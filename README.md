@@ -1,6 +1,12 @@
 # ShellGPT
 
+![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/fredtan/shellgpt)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/fredtanxo/shellgpt/ci.yml)
+![GitHub](https://img.shields.io/github/license/fredtanxo/shellgpt)
+
 The ChatGPT in shell.
+
+[![asciicast](https://asciinema.org/a/KGgUJ30JY23dnT9z9xcOAsq1p.svg)](https://asciinema.org/a/KGgUJ30JY23dnT9z9xcOAsq1p)
 
 ## Usage
 ```
