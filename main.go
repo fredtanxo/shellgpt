@@ -25,10 +25,8 @@ func init() {
 	go func() {
 		signals := make(chan os.Signal, 2)
 		signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-		select {
-		case <-signals:
-			exitHook()
-		}
+		<-signals
+		exitHook()
 	}()
 }
 
