@@ -1,18 +1,21 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/chzyer/readline"
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"log"
-	"os"
-	"os/signal"
 	"strings"
-	"syscall"
+)
+
+const (
+	promptDefault = "\u001b[32m> \u001b[0m"
+	promptMulLine = "\u001b[32m. \u001b[0m"
+	promptExit    = "\nBye"
 )
 
 // The OpenAI API Key
@@ -20,15 +23,6 @@ var apiKey string
 
 // Recent AI response content
 var output string
-
-func init() {
-	go func() {
-		signals := make(chan os.Signal, 2)
-		signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-		<-signals
-		exitHook()
-	}()
-}
 
 func main() {
 	flag.StringVar(&apiKey, "api-key", "", "OpenAI API key")
@@ -41,19 +35,33 @@ func main() {
 	}
 
 	client := openai.NewClient(apiKey)
-	scanner := bufio.NewScanner(os.Stdin)
 
+	rl, err := readline.NewEx(&readline.Config{
+		Prompt:          promptDefault,
+		InterruptPrompt: promptExit,
+		EOFPrompt:       promptExit,
+	})
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer func() { _ = rl.Close() }()
+
+	var inputs []string
 	for {
-		fmt.Print("\033[0;32m> \033[0m")
-
 		// Read user input
-		input, err := getUserInput(scanner)
+		input, err := rl.Readline()
 		if err != nil {
 			break
 		}
 
 		input = strings.TrimSpace(input)
-		if len(input) == 0 {
+		if len(input) == 0 && len(inputs) == 0 {
+			continue
+		}
+
+		inputs = append(inputs, input)
+		if strings.HasSuffix(input, "\\") {
+			rl.SetPrompt(promptMulLine)
 			continue
 		}
 
@@ -61,7 +69,7 @@ func main() {
 		messages := []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleUser,
-				Content: input,
+				Content: strings.Join(inputs, "\n"),
 			},
 		}
 
@@ -89,12 +97,12 @@ func main() {
 			fmt.Print(s)
 		})
 
-		// Release resources
-		fmt.Println()
+		// Cleanup resources
 		stream.Close()
+		fmt.Println()
+		inputs = inputs[:0]
+		rl.SetPrompt(promptDefault)
 	}
-
-	exitHook()
 }
 
 func printBanner() {
@@ -108,13 +116,6 @@ func printBanner() {
 Type anything to start a conversation.
 
 `)
-}
-
-// exitHook is to say goodbye to user and exit the program
-func exitHook() {
-	fmt.Println()
-	fmt.Println("Bye")
-	os.Exit(0)
 }
 
 // handleResponse handles the stream response
@@ -140,22 +141,4 @@ func handleResponse(stream *openai.ChatCompletionStream, handler func(string)) {
 
 		handler(c)
 	}
-}
-
-// getUserInput read the string from the scanner.
-// Multiple lines are separated by a backslash(\) at the end of the line.
-func getUserInput(scanner *bufio.Scanner) (string, error) {
-	if scanner.Scan() {
-		t := scanner.Text()
-		s := strings.TrimSuffix(t, "\\")
-		if strings.HasSuffix(t, "\\") {
-			n, err := getUserInput(scanner)
-			if err != nil {
-				return "", err
-			}
-			return strings.Join([]string{s, n}, "\n"), nil
-		}
-		return s, nil
-	}
-	return "", io.EOF
 }
