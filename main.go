@@ -2,12 +2,10 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"fmt"
 	"github.com/chzyer/readline"
 	"github.com/sashabaranov/go-openai"
-	"io"
 	"log"
 	"os"
 	"strings"
@@ -42,7 +40,7 @@ func main() {
 		log.Fatalln("No API key provided")
 	}
 
-	printBanner()
+	ShowBanner()
 
 	config := openai.DefaultConfig(apiKey)
 	config.BaseURL = apiUrl
@@ -105,7 +103,7 @@ func main() {
 			log.Fatalln("error creating stream request", err)
 		}
 
-		handleResponse(stream, func(s string) {
+		HandleResponse(stream, func(s string) {
 			fmt.Print(s)
 		})
 
@@ -114,43 +112,5 @@ func main() {
 		fmt.Println()
 		inputs = inputs[:0]
 		rl.SetPrompt(promptDefault)
-	}
-}
-
-func printBanner() {
-	fmt.Print(`
-  ____  _          _ _  ____ ____ _____ 
- / ___|| |__   ___| | |/ ___|  _ \_   _|
- \___ \| '_ \ / _ \ | | |  _| |_) || |
-  ___) | | | |  __/ | | |_| |  __/ | |
- |____/|_| |_|\___|_|_|\____|_|    |_|
-
-Type anything to start a conversation.
-
-`)
-}
-
-// handleResponse handles the stream response
-// and then apply the handler to the partial content
-func handleResponse(stream *openai.ChatCompletionStream, handler func(string)) {
-	for {
-		response, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
-			break
-		}
-
-		if err != nil {
-			log.Fatalln("error receiving stream response", err)
-		}
-
-		c := response.Choices[0].Delta.Content
-
-		output += c
-
-		if err != nil {
-			log.Fatal("error rendering response into markdown format", err)
-		}
-
-		handler(c)
 	}
 }
