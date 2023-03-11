@@ -18,23 +18,29 @@ const (
 	promptExit    = "\nBye"
 )
 
-// The OpenAI API Key
-var apiKey string
+// The OpenAI API client params
+var (
+	apiUrl string
+	apiKey string
+)
 
 // Recent AI response content
 var output string
 
 func main() {
+	flag.StringVar(&apiUrl, "api-url", "https://api.openai.com/v1", "OpenAI API base url")
 	flag.StringVar(&apiKey, "api-key", "", "OpenAI API key")
 	flag.Parse()
-
-	printBanner()
 
 	if apiKey == "" {
 		log.Fatalln("No API key provided")
 	}
 
-	client := openai.NewClient(apiKey)
+	printBanner()
+
+	config := openai.DefaultConfig(apiKey)
+	config.BaseURL = apiUrl
+	client := openai.NewClientWithConfig(config)
 
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt:          promptDefault,
