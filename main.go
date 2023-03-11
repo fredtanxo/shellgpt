@@ -9,6 +9,7 @@ import (
 	"github.com/sashabaranov/go-openai"
 	"io"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -31,6 +32,11 @@ func main() {
 	flag.StringVar(&apiUrl, "api-url", "https://api.openai.com/v1", "OpenAI API base url")
 	flag.StringVar(&apiKey, "api-key", "", "OpenAI API key")
 	flag.Parse()
+
+	envKey := os.Getenv("OPENAI_API_KEY")
+	if len(apiKey) == 0 {
+		apiKey = envKey
+	}
 
 	if apiKey == "" {
 		log.Fatalln("No API key provided")
